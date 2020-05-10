@@ -1,18 +1,19 @@
-import React, { Component } from 'react';
-import { BrowserRouter as Router, Route} from 'react-router-dom';
-import { connect } from 'react-redux';
-import LoadingBar from 'react-redux-loading';
-import Typography from '@material-ui/core/Typography';
-import { handleInitialData } from '../actions/shared';
-import Dashboard from './Dashboard';
-import Signin from './Signin';
-import NewQuestion from './NewQuestion';
-import QuestionDetails from './QuestionDetails';
-import Leaderboard from './Leaderboard';
-import Navbar from './Navbar';
+import React, { Component } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { connect } from "react-redux";
+import LoadingBar from "react-redux-loading";
+import Typography from "@material-ui/core/Typography";
+import { handleInitialData } from "../actions/shared";
+import Dashboard from "./Dashboard";
+import Signin from "./Signin";
+import NewQuestion from "./NewQuestion";
+import QuestionDetails from "./QuestionDetails";
+import Leaderboard from "./Leaderboard";
+import Navbar from "./Navbar";
+import PageNotFound from "./PageNotFound";
 
 class App extends Component {
-  componentDidMount () {
+  componentDidMount() {
     this.props.dispatch(handleInitialData());
   }
   render() {
@@ -21,35 +22,39 @@ class App extends Component {
         <div>
           <LoadingBar />
           <div className="header">
-            <Typography variant="headline">
-              Would You Rather
-            </Typography>
-            {this.props.signedIn && 
-              <Navbar authedUser={this.props.authedUserName} authedUserAvatar={this.props.authedUserAvatar} />
-            }
+            <Typography variant="headline">Would You Rather</Typography>
+            {this.props.signedIn && (
+              <Navbar
+                authedUser={this.props.authedUserName}
+                authedUserAvatar={this.props.authedUserAvatar}
+              />
+            )}
           </div>
-          {
-            !this.props.signedIn // Check whether user is signed in or not
-            ? <Signin /> 
-            : <div>
-                <Route path='/' exact component={Dashboard} />
-                <Route path='/questions/:id' component={QuestionDetails} />
-                <Route path='/add' component={NewQuestion} />
-                <Route path='/leaderboard' component={Leaderboard} />
-              </div>
-          }
+          {!this.props.signedIn ? ( // Check whether user is signed in or not
+            <Signin />
+          ) : (
+            <div>
+              <Switch>
+                <Route path="/" exact component={Dashboard} />
+                <Route path="/questions/:id" component={QuestionDetails} />
+                <Route path="/add" component={NewQuestion} />
+                <Route path="/leaderboard" component={Leaderboard} />
+                <Route component={PageNotFound} />
+              </Switch>
+            </div>
+          )}
         </div>
       </Router>
     );
   }
 }
 
-function mapStateToProps ({ authedUser, users }) {
+function mapStateToProps({ authedUser, users }) {
   return {
     signedIn: authedUser !== null,
-    authedUserName: authedUser ? users[authedUser].name : '',
-    authedUserAvatar: authedUser ? users[authedUser].avatarURL : '',
-  }
+    authedUserName: authedUser ? users[authedUser].name : "",
+    authedUserAvatar: authedUser ? users[authedUser].avatarURL : "",
+  };
 }
 
 export default connect(mapStateToProps)(App);
